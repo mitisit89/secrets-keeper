@@ -16,7 +16,7 @@ def encrypt_password(password: str) -> str:
     return cipher.encrypt(password.encode()).decode()
 
 
-def decrypt_password(encrypted_password: str) -> str:
+def decrypt_password(encrypted_password: str | None) -> str | None:
     try:
         if encrypted_password is None:
             return
@@ -51,10 +51,10 @@ async def get_password(service_name: str) -> Password | None | NoReturn:
         async with async_session() as session:
             q = select(ServicePassword.password).where(ServicePassword.service_name == service_name)
             result = await session.execute(q)
-            decrypted = decrypt_password(result.scalar_one_or_none())
+            decrypted: Password = decrypt_password(result.scalar_one_or_none())
             if decrypted is None:
                 return None
-            return Password(password=decrypted)
+            return decrypted
 
     except Exception as e:
         raise e
