@@ -20,23 +20,22 @@ async def decrypt_password(encrypted_password: str) -> str:
     return cipher.decrypt(encrypted_password.encode()).decode()
 
 
-async def create_or_update_password(service_name: str, password_data: PasswordCreate) -> str | NoReturn:
+async def create_or_update_password(service_name: str, password_data: Password) -> dict | NoReturn:
     encrypted = encrypt_password(password_data.password)
     try:
         async with async_session() as session:
-            db_password = await session.query(ServicePassword).filter(Password.service_name == service_name).first()
-            if db_password:
-                db_password.encrypted_password = encrypted
-                logger.info(f"Updating password for service {service_name}")
+            q = select(ServicePassword.id).where(ServicePassword.service_name == service_name)
+            result = await session.execute(q)
+            check_if_exist = result.scalar_one_or_none()
+            if check_if_exist:
+                serivice = ServicePassword(id=check_if_exist, service_name=service_name, password=encrypted)
             else:
-                db_password = Password(service_name=service_name, encrypted_password=encrypted)
-                session.add(db_password)
-                logger.info(f"Creating password for service {service_name}")
+                serivice = ServicePassword(service_name=service_name, password=encrypted)
+            new_service = await session.merge(serivice)
             await session.commit()
-            await session.refresh(db_password)
-            return db_password
+            await session.refresh(new_service)
+            return new_service
     except Exception as e:
-        logger.error(f"Error getting in function create_or_update_password: {e}")
         raise e
 
 
