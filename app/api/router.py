@@ -1,6 +1,7 @@
-from fastapi import APIRouter, HTTPException
-from sqlalchemy.orm import Session
+from fastapi import APIRouter, Depends, HTTPException
+from sqlalchemy.ext.asyncio import AsyncSession
 from app.db import schemas
+from app.db.connection import get_session
 from app import services
 from app.logger import logger
 
@@ -11,6 +12,7 @@ router = APIRouter()
 async def create_password(
     service_name: str,
     password_data: schemas.Password,
+    session: AsyncSession = Depends(get_session),
 ):
     """
     Create or update a password for a given service.
@@ -28,7 +30,7 @@ async def create_password(
         HTTPException: If an error occurs while creating or updating the password, a 400 status code is returned.
     """
     try:
-        password_entry = await services.create_or_update_password(service_name, password_data)
+        password_entry = await services.create_or_update_password(session, service_name, password_data)
         return {
             "service_name": password_entry.service_name,
             "password": password_data.password,
@@ -39,7 +41,7 @@ async def create_password(
 
 
 @router.get("/password/{service_name}", response_model=schemas.ServicePasswordScheme)
-async def get_password(service_name: str):
+async def get_password(service_name: str, session: AsyncSession = Depends(get_session)):
     """
     Retrieve a password for a given service.
 
@@ -56,7 +58,7 @@ async def get_password(service_name: str):
         HTTPException: If the service is not found, a 404 status code is returned.
     """
     try:
-        password = await services.get_password(service_name)
+        password = await services.get_password(session, service_name)
         if password is None:
             logger.info(f"Service {service_name} password not found")
             raise HTTPException(status_code=404, detail="Service not found")
@@ -68,7 +70,7 @@ async def get_password(service_name: str):
 
 
 @router.get("/password/", response_model=list[schemas.ServicePasswordScheme])
-async def search_passwords(service_name: str):
+async def search_passwords(service_name: str, session: AsyncSession = Depends(get_session)):
     """
     Search for passwords by service name.
 
@@ -85,7 +87,7 @@ async def search_passwords(service_name: str):
         HTTPException: If no matches are found, a 404 status code is returned.
     """
     try:
-        results = await services.search_passwords(service_name)
+        results = await services.search_passwords(session, service_name)
         if not results:
             raise HTTPException(status_code=404, detail="No matches found")
         return results
