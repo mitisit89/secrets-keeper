@@ -1,9 +1,11 @@
+from unittest.mock import AsyncMock, MagicMock, patch
+
 import pytest
 import pytest_asyncio
-from app.services import decrypt_password, encrypt_password, get_password, search_passwords, create_or_update_password
 from cryptography.fernet import InvalidToken
 from sqlalchemy.exc import NoResultFound
-from unittest.mock import patch, MagicMock, AsyncMock
+
+from app.services import create_or_update_password, decrypt_password, encrypt_password, get_password, search_passwords
 
 
 @pytest.fixture
