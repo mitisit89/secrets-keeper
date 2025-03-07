@@ -1,5 +1,6 @@
 from typing import NoReturn
 from cryptography.fernet import Fernet, InvalidToken
+from sqlalchemy import text
 from app.settings import settings
 from app.logger import logger
 from app.db.connection import async_session
@@ -37,7 +38,7 @@ async def create_or_update_password(service_name: str, password_data: Password) 
                 serivice = ServicePassword(id=check_if_exist, service_name=service_name, password=encrypted)
             else:
                 serivice = ServicePassword(service_name=service_name, password=encrypted)
-            new_service = await session.merge(serivice)
+            new_service: ServicePasswordScheme = await session.merge(serivice)
             await session.commit()
             await session.refresh(new_service)
             return new_service
@@ -45,25 +46,28 @@ async def create_or_update_password(service_name: str, password_data: Password) 
         raise e
 
 
-async def get_password(service_name: str) -> str | NoReturn:
+async def get_password(service_name: str) -> Password | None | NoReturn:
     try:
         async with async_session() as session:
             q = select(ServicePassword.password).where(ServicePassword.service_name == service_name)
             result = await session.execute(q)
             decrypted = decrypt_password(result.scalar_one_or_none())
-            return decrypted
+            if decrypted is None:
+                return None
+            return Password(password=decrypted)
 
     except Exception as e:
         raise e
 
 
-async def search_passwords(query: str) -> dict | NoReturn:
+async def search_passwords(query: str) -> list[ServicePasswordScheme] | NoReturn:
     try:
         async with async_session() as session:
-            results = (
-                await session.query(ServicePassword).filter(ServicePassword.service_name.ilike(f"%{query}%")).all()
-            )
-            logger.info(f"Finding passwords for services {query} ,for query {len(results)}")
-            return {r.service_name: decrypt_password(r.encrypted_password) for r in results}
+            q = await session.scalars(select(ServicePassword).where(ServicePassword.service_name.contains(query)))
+            return [
+                ServicePasswordScheme(service_name=r.service_name, password=decrypt_password(r.password))
+                for r in q.all()
+            ]
+
     except Exception as e:
         raise e
