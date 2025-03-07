@@ -12,7 +12,21 @@ async def create_password(
     service_name: str,
     password_data: schemas.Password,
 ):
-    print(password_data)
+    """
+    Create or update a password for a given service.
+
+    This endpoint allows the user to create a new password entry or update an existing one for a specified service name.
+
+    Args:
+        service_name (str): The name of the service for which the password is being created or updated.
+        password_data (schemas.Password): An object containing the password details.
+
+    Returns:
+        dict: A dictionary containing the service name and the newly created or updated password.
+
+    Raises:
+        HTTPException: If an error occurs while creating or updating the password, a 400 status code is returned.
+    """
     try:
         password_entry = await services.create_or_update_password(service_name, password_data)
         return {
@@ -26,6 +40,21 @@ async def create_password(
 
 @router.get("/password/{service_name}", response_model=schemas.ServicePasswordScheme)
 async def get_password(service_name: str):
+    """
+    Retrieve a password for a given service.
+
+    This endpoint returns the password for the given service name.
+
+    Args:
+        service_name (str): The name of the service for which the password is being retrieved.
+
+    Returns:
+        dict: A dictionary containing the service name and the password.
+
+    Raises:
+        HTTPException: If an error occurs while retrieving the password, a 400 status code is returned.
+        HTTPException: If the service is not found, a 404 status code is returned.
+    """
     try:
         password = await services.get_password(service_name)
         if password is None:
@@ -40,6 +69,21 @@ async def get_password(service_name: str):
 
 @router.get("/password/", response_model=list[schemas.ServicePasswordScheme])
 async def search_passwords(service_name: str):
+    """
+    Search for passwords by service name.
+
+    This endpoint takes a service name and returns a list of matching password entries.
+
+    Args:
+        service_name (str): The service name to search for.
+
+    Returns:
+        list[schemas.ServicePasswordScheme]: A list of matching password entries.
+
+    Raises:
+        HTTPException: If an error occurs while searching, a 400 status code is returned.
+        HTTPException: If no matches are found, a 404 status code is returned.
+    """
     try:
         results = await services.search_passwords(service_name)
         if not results:
