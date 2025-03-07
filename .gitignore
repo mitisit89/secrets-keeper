@@ -13,3 +13,4 @@ wheels/
 *.key
 .idea/
 *.db
+.vscode/

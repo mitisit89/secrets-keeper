@@ -1,8 +1,9 @@
 from fastapi import FastAPI
+
 from app.api.router import router
-from app.settings import settings
 from app.db.connection import engine
 from app.db.models import ServicePassword
+from app.settings import settings
 
 app = FastAPI(title=settings.APP_NAME)
 app.include_router(router)
