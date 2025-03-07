@@ -1,8 +1,9 @@
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.ext.asyncio import AsyncSession
+
+from app import services
 from app.db import schemas
 from app.db.connection import get_session
-from app import services
 from app.logger import logger
 
 router = APIRouter()
@@ -40,7 +41,11 @@ async def create_password(
         raise HTTPException(status_code=400)
 
 
-@router.get("/password/{service_name}", response_model=schemas.ServicePasswordScheme)
+@router.get(
+    "/password/{service_name}",
+    response_model=schemas.ServicePasswordScheme,
+    responses={404: {"description": "Service not found"}, 400: {"description": "Error getting password"}},
+)
 async def get_password(service_name: str, session: AsyncSession = Depends(get_session)):
     """
     Retrieve a password for a given service.
@@ -69,7 +74,11 @@ async def get_password(service_name: str, session: AsyncSession = Depends(get_se
         raise HTTPException(status_code=400)
 
 
-@router.get("/password/", response_model=list[schemas.ServicePasswordScheme])
+@router.get(
+    "/password/",
+    response_model=list[schemas.ServicePasswordScheme],
+    responses={404: {"description": "No matches found"}, 400: {"description": "Error searching passwords"}},
+)
 async def search_passwords(service_name: str, session: AsyncSession = Depends(get_session)):
     """
     Search for passwords by service name.
@@ -87,10 +96,13 @@ async def search_passwords(service_name: str, session: AsyncSession = Depends(ge
         HTTPException: If no matches are found, a 404 status code is returned.
     """
     try:
-        results = await services.search_passwords(session, service_name)
+        results = await services.search_passwords(
+            session,
+            service_name,
+        )
         if not results:
             raise HTTPException(status_code=404, detail="No matches found")
         return results
     except Exception as e:
         logger.error(f"Error searching passwords: {e}")
-        raise HTTPException(status_code=400)
+        raise HTTPException(status_code=400, detail="Error searching passwords")

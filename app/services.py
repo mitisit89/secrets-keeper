@@ -1,13 +1,15 @@
 from typing import NoReturn
+
 from cryptography.fernet import Fernet, InvalidToken
 from sqlalchemy import text
 from sqlalchemy.ext.asyncio import AsyncSession
-from app.settings import settings
-from app.logger import logger
+from sqlmodel import insert, select, update
+
 from app.db.connection import async_session
 from app.db.models import ServicePassword
 from app.db.schemas import Password, ServicePasswordScheme
-from sqlmodel import select, insert, update
+from app.logger import logger
+from app.settings import settings
 
 cipher = Fernet(settings.SECRET_KEY)
 
@@ -20,7 +22,7 @@ def encrypt_password(password: str) -> str:
 def decrypt_password(encrypted_password: str | None) -> str | None:
     try:
         if encrypted_password is None:
-            return
+            return None
         logger.info("Decrypting password")
         decrypted = cipher.decrypt(encrypted_password.encode()).decode()
         return decrypted
@@ -52,7 +54,8 @@ async def get_password(session: AsyncSession, service_name: str) -> Password | N
     try:
         q = select(ServicePassword.password).where(ServicePassword.service_name == service_name)
         result = await session.execute(q)
-        decrypted: Password = decrypt_password(result.scalar_one_or_none())
+        result = result.scalar_one_or_none()
+        decrypted: Password = decrypt_password(result)
         if decrypted is None:
             return None
         return decrypted
