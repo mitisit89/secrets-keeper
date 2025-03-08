@@ -1,5 +1,5 @@
 services:
-  db:
+  secrets_db:
     image: postgres:17-alpine
     ports:
       - "5432:5432"
@@ -15,9 +15,9 @@ services:
     ports:
       - "8000:8000"
     environment:
-      - DATABASE_URL=postgresql+asyncpg://user:password@postgres:5432/secrets_keeper
+      - DATABASE_URL=postgresql+asyncpg://user:password@secrets_db:5432/secrets_keeper
     depends_on:
-      - db
+      - secrets_db
 
 volumes:
   postgres_data:
