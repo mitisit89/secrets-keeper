@@ -14,3 +14,5 @@ wheels/
 .idea/
 *.db
 .vscode/
+.pytest_cache/
+.ruff_cache/
