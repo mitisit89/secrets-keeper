@@ -98,5 +98,4 @@ This project uses GitHub Actions for continuous integration. The workflow is def
 The following environment variables are used by the application:
 
 - `DATABASE_URL`: The URL of the PostgreSQL database.
-- `SECRET_KEY`: The secret key used for encryption.
 
