@@ -40,15 +40,55 @@ To run the tests, use the following command:
 ```sh
 pytest
 ```
-## Running without docker
-    1. go to https://github.com/astral-sh/uv and install 
-    2. git clone https://github.com/mitisit89/secrets_keeper.git
-    3. cd secrets_keeper
-    4. Setup venv ```sh uv venv```
-    5. Sync deps ```sh uv sync```
-    6. Activate ```sh venv source .venv/bin/activate```
-    7. gen secret key ```sh python  gen_secret_key.py```
-    8. fastapi dev
+# Secrets Keeper
+
+## Installation and Setup
+
+1. Install [uv](https://github.com/astral-sh/uv):
+   ```sh
+   pip install uv
+   ```
+
+2. Clone the repository:
+   ```sh
+   git clone https://github.com/mitisit89/secrets_keeper.git
+   ```
+
+3. Navigate to the project directory:
+   ```sh
+   cd secrets_keeper
+   ```
+
+4. Create and set up a virtual environment:
+   ```sh
+   uv venv
+   ```
+
+5. Install dependencies:
+   ```sh
+   uv sync
+   ```
+
+6. Activate the virtual environment:
+   ```sh
+   source .venv/bin/activate
+   ```
+
+7. Generate a secret key:
+   ```sh
+   python gen_secret_key.py
+   ```
+
+8. Start FastAPI in development mode:
+   ```sh
+   fastapi dev
+   ```
+
+## Additional Information
+- Make sure you have Python 3.8+ installed.
+- If you are using Windows, activate the virtual environment with:
+  ```sh
+  .venv\Scri
 ## CI/CD
 
 This project uses GitHub Actions for continuous integration. The workflow is defined in `.github/workflows/ci.yml`.
