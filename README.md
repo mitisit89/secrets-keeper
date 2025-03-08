@@ -42,7 +42,7 @@ pytest
 ```
 ## Running without docker
     1. go to https://github.com/astral-sh/uv and install 
-    2. git clone https://github.com/yourusername/secrets_keeper.git
+    2. git clone https://github.com/mitisit89/secrets_keeper.git
     3. cd secrets_keeper
     4. Setup venv ```sh uv venv```
     5. Sync deps ```sh uv sync```
