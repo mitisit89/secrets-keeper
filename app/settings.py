@@ -1,7 +1,6 @@
 import os
 from pathlib import Path
 
-from cryptography.fernet import Fernet
 from pydantic_settings import BaseSettings
 
 

@@ -1,11 +1,9 @@
 from typing import NoReturn
 
 from cryptography.fernet import Fernet, InvalidToken
-from sqlalchemy import text
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlmodel import insert, select, update
+from sqlmodel import select
 
-from app.db.connection import async_session
 from app.db.models import ServicePassword
 from app.db.schemas import Password, ServicePasswordScheme
 from app.logger import logger
