@@ -86,9 +86,6 @@ pytest
 
 ## Additional Information
 - Make sure you have Python 3.8+ installed.
-- If you are using Windows, activate the virtual environment with:
-  ```sh
-  .venv\Scri
 ## CI/CD
 
 This project uses GitHub Actions for continuous integration. The workflow is defined in `.github/workflows/ci.yml`.
